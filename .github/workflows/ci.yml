@@ -140,7 +140,7 @@ jobs:
       - name: Setup Regression Environment
         run: |
           chmod +x build/myobjdump
-          pip3 install lit filecheck
+          pip3 install --break-system-packages lit filecheck
           echo "--- Tool versions ---"
           lit --version || true
           FileCheck --version || true
@@ -166,7 +166,7 @@ jobs:
       - name: Setup Regression Environment
         run: |
           chmod +x build/myobjdump
-          pip3 install lit filecheck
+          pip3 install --break-system-packages lit filecheck
 
       - name: Run LIT Regression Tests under ASan
         run: lit -v tests/regression_tests
