@@ -1,4 +1,4 @@
-; RUN: %myobjdump %S/../../elf_files/advanced_test.elf %data/riscv_decoder.json %data/riscv_pseudos.json | FileCheck %s
+; RUN: %myobjdump %S/../../elf_files/advanced_test.elf %data/riscv_decoder.json %data/riscv_pseudos.json | filecheck %s
 ;
 ; Verify the header and section banner are printed correctly.
 ; Uses CHECK-NEXT to ensure the empty line and section header follow immediately.
