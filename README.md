@@ -31,7 +31,7 @@ If CMake's bundled curl has certificate problems on Windows/MinGW, this project 
 ## Run
 
 ```powershell
-.\build\myobjdump.exe task.elf data/riscv_decoder.json data/riscv_pseudos.json
+.\build\myobjdump.exe elf_files/task.elf data/riscv_decoder.json data/riscv_pseudos.json
 ```
 
 ## Data files

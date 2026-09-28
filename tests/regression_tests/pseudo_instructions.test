@@ -1,4 +1,4 @@
-; RUN: %myobjdump %S/../Inputs/advanced_test.elf %data/riscv_decoder.json %data/riscv_pseudos.json | FileCheck %s
+; RUN: %myobjdump %S/../../elf_files/advanced_test.elf %data/riscv_decoder.json %data/riscv_pseudos.json | FileCheck %s
 ;
 ; Verify pseudo-instructions are displayed correctly.
 ; Expanded from the original 5 to cover the real aliases that had bugs.

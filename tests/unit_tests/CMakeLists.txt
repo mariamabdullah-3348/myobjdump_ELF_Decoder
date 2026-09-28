@@ -24,10 +24,10 @@ add_custom_command(TARGET unit_tests POST_BUILD
 
 # Copy ELF test files next to the test binary for ElfReader tests
 set(ELF_TEST_FILES
-    ${CMAKE_SOURCE_DIR}/advanced_test.elf
-    ${CMAKE_SOURCE_DIR}/array.elf
-    ${CMAKE_SOURCE_DIR}/rv32_test.elf
-    ${CMAKE_SOURCE_DIR}/factorial.elf
+    ${CMAKE_SOURCE_DIR}/elf_files/advanced_test.elf
+    ${CMAKE_SOURCE_DIR}/elf_files/array.elf
+    ${CMAKE_SOURCE_DIR}/elf_files/rv32_test.elf
+    ${CMAKE_SOURCE_DIR}/elf_files/factorial.elf
 )
 foreach(ELF_FILE ${ELF_TEST_FILES})
     if(EXISTS ${ELF_FILE})

@@ -57,7 +57,7 @@ jobs:
 
       - name: Copy ELF test files for unit tests
         run: |
-          cp advanced_test.elf array.elf rv32_test.elf factorial.elf build-linux/tests/unit_tests/../
+          cp elf_files/*.elf build-linux/tests/unit_tests/../
 
       - name: Run Google Tests via CTest (Linux)
         run: ctest --test-dir build-linux --output-on-failure
@@ -107,7 +107,7 @@ jobs:
 
       - name: Copy ELF test files
         run: |
-          cp advanced_test.elf array.elf rv32_test.elf factorial.elf build-linux-asan/tests/unit_tests/../
+          cp elf_files/*.elf build-linux-asan/tests/unit_tests/../
 
       - name: Run Google Tests via CTest (ASan + UBSan)
         run: ctest --test-dir build-linux-asan --output-on-failure
@@ -115,11 +115,11 @@ jobs:
       - name: ASan CLI smoke tests
         run: |
           echo "--- ELF64 smoke ---"
-          build-linux-asan/myobjdump advanced_test.elf data/riscv_decoder.json data/riscv_pseudos.json > /dev/null
+          build-linux-asan/myobjdump elf_files/advanced_test.elf data/riscv_decoder.json data/riscv_pseudos.json > /dev/null
           echo "--- ELF32 smoke ---"
-          build-linux-asan/myobjdump array.elf data/riscv_decoder.json data/riscv_pseudos.json > /dev/null
+          build-linux-asan/myobjdump elf_files/array.elf data/riscv_decoder.json data/riscv_pseudos.json > /dev/null
           echo "--- factorial smoke ---"
-          build-linux-asan/myobjdump factorial.elf data/riscv_decoder.json data/riscv_pseudos.json > /dev/null
+          build-linux-asan/myobjdump elf_files/factorial.elf data/riscv_decoder.json data/riscv_pseudos.json > /dev/null
           echo "All ASan CLI smoke tests passed."
 
   # ----------------------------- LIT Regression Linux -----------------------
@@ -247,7 +247,7 @@ jobs:
 
       - name: Copy ELF test files
         run: |
-          Copy-Item advanced_test.elf, array.elf, rv32_test.elf, factorial.elf build-win/tests/unit_tests/
+          Copy-Item elf_files/*.elf build-win/tests/unit_tests/
 
       - name: Run Google Tests via CTest (Windows)
         run: ctest --test-dir build-win -C Release --output-on-failure
