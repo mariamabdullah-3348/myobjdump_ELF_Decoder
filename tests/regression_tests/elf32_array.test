@@ -1,0 +1,16 @@
+; RUN: %myobjdump %S/../Inputs/array.elf %data/riscv_decoder.json %data/riscv_pseudos.json | FileCheck %s
+;
+; ELF32 regression test: protects the fix for ELF32 loading that was
+; previously broken (array.elf failed with "Failed to load ELF file").
+; Verifies header, symbol labels, and correct 32-bit instruction decoding.
+
+; CHECK: array.elf:     file format elf32-littleriscv
+; CHECK: Disassembly of section .text:
+
+; CHECK-LABEL: <main>:
+; CHECK-NEXT:    00010074:
+; CHECK:      addi	sp,sp,-192
+; CHECK:      sw	s0,188(sp)
+; CHECK:      addi	s0,sp,192
+; CHECK:      sw	zero,-20(s0)
+; CHECK:      j	100ac <main+0x38>

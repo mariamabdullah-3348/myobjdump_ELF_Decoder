@@ -1,0 +1,288 @@
+{
+  "description": "RISC-V disassembly aliases used by myobjdump. Rules are ordered by preference; earlier aliases are selected first.",
+  "aliases": [
+    {
+      "name": "nop",
+      "base": "c.addi",
+      "when": {
+        "rd": 0,
+        "rs1": 0,
+        "imm": 0
+      },
+      "operands": []
+    },
+    {
+      "name": "li",
+      "base": "c.li",
+      "operands": [
+        "rd",
+        "imm"
+      ]
+    },
+    {
+      "name": "j",
+      "base": "c.j",
+      "operands": [
+        "target"
+      ]
+    },
+    {
+      "name": "nop",
+      "base": "addi",
+      "when": {
+        "rd": 0,
+        "rs1": 0,
+        "imm": 0
+      },
+      "operands": []
+    },
+    {
+      "name": "li",
+      "base": "addi",
+      "when": {
+        "rs1": 0
+      },
+      "operands": [
+        "rd",
+        "imm"
+      ]
+    },
+    {
+      "name": "mv",
+      "base": "addi",
+      "when": {
+        "imm": 0
+      },
+      "operands": [
+        "rd",
+        "rs1"
+      ]
+    },
+    {
+      "name": "sext.w",
+      "base": "addiw",
+      "when": {
+        "imm": 0
+      },
+      "operands": [
+        "rd",
+        "rs1"
+      ]
+    },
+    {
+      "name": "neg",
+      "base": "sub",
+      "when": {
+        "rs1": 0
+      },
+      "operands": [
+        "rd",
+        "rs2"
+      ]
+    },
+    {
+      "name": "not",
+      "base": "xori",
+      "when": {
+        "imm": 4095
+      },
+      "operands": [
+        "rd",
+        "rs1"
+      ]
+    },
+    {
+      "name": "seqz",
+      "base": "sltiu",
+      "when": {
+        "imm": 1
+      },
+      "operands": [
+        "rd",
+        "rs1"
+      ]
+    },
+    {
+      "name": "sltz",
+      "base": "slt",
+      "when": {
+        "rs2": 0
+      },
+      "operands": [
+        "rd",
+        "rs1"
+      ]
+    },
+    {
+      "name": "sgtz",
+      "base": "slt",
+      "when": {
+        "rs1": 0
+      },
+      "operands": [
+        "rd",
+        "rs2"
+      ]
+    },
+    {
+      "name": "j",
+      "base": "jal",
+      "when": {
+        "rd": 0
+      },
+      "operands": [
+        "target"
+      ]
+    },
+    {
+      "name": "ret",
+      "base": "c.jr",
+      "when": {
+        "rs1_n0": 1
+      },
+      "operands": []
+    },
+    {
+      "name": "ret",
+      "base": "jalr",
+      "when": {
+        "rd": 0,
+        "rs1": 1,
+        "imm": 0
+      },
+      "operands": []
+    },
+    {
+      "name": "beqz",
+      "base": "beq",
+      "when": {
+        "rs2": 0
+      },
+      "operands": [
+        "rs1",
+        "target"
+      ]
+    },
+    {
+      "name": "bnez",
+      "base": "bne",
+      "when": {
+        "rs2": 0
+      },
+      "operands": [
+        "rs1",
+        "target"
+      ]
+    },
+    {
+      "name": "bltz",
+      "base": "blt",
+      "when": {
+        "rs2": 0
+      },
+      "operands": [
+        "rs1",
+        "target"
+      ]
+    },
+    {
+      "name": "bgez",
+      "base": "bge",
+      "when": {
+        "rs2": 0
+      },
+      "operands": [
+        "rs1",
+        "target"
+      ]
+    },
+    {
+      "name": "blez",
+      "base": "bge",
+      "when": {
+        "rs1": 0
+      },
+      "operands": [
+        "rs2",
+        "target"
+      ]
+    },
+    {
+      "name": "bgtz",
+      "base": "blt",
+      "when": {
+        "rs1": 0
+      },
+      "operands": [
+        "rs2",
+        "target"
+      ]
+    },
+    {
+      "name": "csrr",
+      "base": "csrrs",
+      "when": {
+        "rs1": 0
+      },
+      "operands": [
+        "rd",
+        "csr"
+      ]
+    },
+    {
+      "name": "csrs",
+      "base": "csrrs",
+      "when": {
+        "rd": 0
+      },
+      "operands": [
+        "csr",
+        "rs1"
+      ]
+    },
+    {
+      "name": "csrc",
+      "base": "csrrc",
+      "when": {
+        "rd": 0
+      },
+      "operands": [
+        "csr",
+        "rs1"
+      ]
+    },
+    {
+      "name": "csrw",
+      "base": "csrrw",
+      "when": {
+        "rd": 0
+      },
+      "operands": [
+        "csr",
+        "rs1"
+      ]
+    },
+    {
+      "name": "csrrsi",
+      "base": "csrrsi",
+      "when": {
+        "rd": 0
+      },
+      "operands": [
+        "csr",
+        "zimm"
+      ]
+    },
+    {
+      "name": "csrrci",
+      "base": "csrrci",
+      "when": {
+        "rd": 0
+      },
+      "operands": [
+        "csr",
+        "zimm"
+      ]
+    }
+  ]
+}

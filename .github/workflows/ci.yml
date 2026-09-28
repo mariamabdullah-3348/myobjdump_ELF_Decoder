@@ -1,0 +1,282 @@
+name: CI/CD
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ----------------------------- Building Linux -----------------------------
+  build-linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure CMake (Linux)
+        run: cmake -S . -B build-linux -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON
+
+      - name: Build (Linux)
+        run: cmake --build build-linux --parallel $(nproc)
+
+      - name: Upload Linux build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build-artifact
+          path: |
+            build-linux/tests/unit_tests/unit_tests
+            build-linux/tests/unit_tests/data/
+            build-linux/myobjdump
+          if-no-files-found: error
+          retention-days: 1
+
+  # ----------------------------- Testing Linux (CTest) ----------------------
+  test-linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: build-linux
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Linux build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-build-artifact
+          path: build-linux/
+
+      - name: Make binaries executable
+        run: chmod +x build-linux/myobjdump build-linux/tests/unit_tests/unit_tests
+
+      - name: Copy ELF test files for unit tests
+        run: |
+          cp advanced_test.elf array.elf rv32_test.elf factorial.elf build-linux/tests/unit_tests/../
+
+      - name: Run Google Tests via CTest (Linux)
+        run: ctest --test-dir build-linux --output-on-failure
+
+  # ----------------------------- Building Linux (ASan + UBSan) --------------
+  build-linux-asan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure CMake (Linux ASan + UBSan)
+        run: cmake -S . -B build-linux-asan -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DMYOBJDUMP_ENABLE_SANITIZERS=ON
+
+      - name: Build (Linux ASan + UBSan)
+        run: cmake --build build-linux-asan --parallel $(nproc)
+
+      - name: Upload Linux ASan build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-asan-build-artifact
+          path: |
+            build-linux-asan/tests/unit_tests/unit_tests
+            build-linux-asan/tests/unit_tests/data/
+            build-linux-asan/myobjdump
+          if-no-files-found: error
+          retention-days: 1
+
+  # ----------------------------- Testing Linux (ASan + UBSan) ---------------
+  test-linux-asan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: build-linux-asan
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Linux ASan build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-asan-build-artifact
+          path: build-linux-asan/
+
+      - name: Make binaries executable
+        run: chmod +x build-linux-asan/myobjdump build-linux-asan/tests/unit_tests/unit_tests
+
+      - name: Copy ELF test files
+        run: |
+          cp advanced_test.elf array.elf rv32_test.elf factorial.elf build-linux-asan/tests/unit_tests/../
+
+      - name: Run Google Tests via CTest (ASan + UBSan)
+        run: ctest --test-dir build-linux-asan --output-on-failure
+
+      - name: ASan CLI smoke tests
+        run: |
+          echo "--- ELF64 smoke ---"
+          build-linux-asan/myobjdump advanced_test.elf data/riscv_decoder.json data/riscv_pseudos.json > /dev/null
+          echo "--- ELF32 smoke ---"
+          build-linux-asan/myobjdump array.elf data/riscv_decoder.json data/riscv_pseudos.json > /dev/null
+          echo "--- factorial smoke ---"
+          build-linux-asan/myobjdump factorial.elf data/riscv_decoder.json data/riscv_pseudos.json > /dev/null
+          echo "All ASan CLI smoke tests passed."
+
+  # ----------------------------- LIT Regression Linux -----------------------
+  regression-tests-linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: build-linux
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Linux build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-build-artifact
+          path: build/
+
+      - name: Setup Regression Environment
+        run: |
+          chmod +x build/myobjdump
+          pip3 install lit filecheck
+          echo "--- Tool versions ---"
+          lit --version || true
+          FileCheck --version || true
+
+      - name: Run LIT Regression Tests (Linux)
+        run: lit -v tests/regression_tests
+
+  # ----------------------------- LIT Regression Linux ASan ------------------
+  regression-tests-linux-asan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: build-linux-asan
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Linux ASan build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-asan-build-artifact
+          path: build/
+
+      - name: Setup Regression Environment
+        run: |
+          chmod +x build/myobjdump
+          pip3 install lit filecheck
+
+      - name: Run LIT Regression Tests under ASan
+        run: lit -v tests/regression_tests
+
+  # ----------------------------- Generator Validation -----------------------
+  validate-generator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate bundled database metadata
+        run: |
+          python3 -c "
+          import json, sys
+          with open('data/riscv_decoder.json') as f:
+              db = json.load(f)
+          count = db.get('instructionCount', 0)
+          instructions = db.get('instructions', [])
+          print(f'Declared count: {count}')
+          print(f'Actual count: {len(instructions)}')
+          assert count == len(instructions), f'Mismatch: {count} != {len(instructions)}'
+          assert count > 100, f'Too few instructions: {count}'
+          # Verify critical instructions exist
+          mnemonics = {d['mnemonic'] for d in instructions}
+          required = {'add','sub','addi','lui','jal','jalr','beq','ld','sd',
+                      'c.nop','c.addi','c.ld','c.sd','c.j','c.beqz','c.ebreak',
+                      'mul','addw','subw','slli','srli','srai','auipc','csrrs'}
+          missing = required - mnemonics
+          assert not missing, f'Missing instructions: {missing}'
+          # Verify mask/match consistency
+          for d in instructions:
+              assert d['mask'] != 0, f'{d[\"mnemonic\"]} has zero mask'
+              assert (d['match'] & d['mask']) == d['match'], f'{d[\"mnemonic\"]} match extends beyond mask'
+          print(f'All {count} instructions validated.')
+          "
+
+  # ----------------------------- Building Windows ---------------------------
+  build-win:
+    runs-on: windows-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure CMake (Windows)
+        run: cmake -S . -B build-win -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON
+
+      - name: Build (Windows)
+        run: cmake --build build-win --config Release --parallel $env:NUMBER_OF_PROCESSORS
+
+      - name: Upload Windows build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build-artifact
+          path: |
+            build-win/tests/unit_tests/Release/unit_tests.exe
+            build-win/tests/unit_tests/Release/data/
+            build-win/Release/myobjdump.exe
+          if-no-files-found: error
+          retention-days: 1
+
+  # ----------------------------- Testing Windows ----------------------------
+  test-win:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    needs: build-win
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Windows build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-build-artifact
+          path: build-win/
+
+      - name: Copy ELF test files
+        run: |
+          Copy-Item advanced_test.elf, array.elf, rv32_test.elf, factorial.elf build-win/tests/unit_tests/
+
+      - name: Run Google Tests via CTest (Windows)
+        run: ctest --test-dir build-win -C Release --output-on-failure
+
+  # ----------------------------- LIT Regression Windows ---------------------
+  regression-tests-windows:
+    runs-on: windows-latest
+    timeout-minutes: 5
+    needs: build-win
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add Git POSIX tools to PATH
+        shell: bash
+        run: |
+          echo "C:\Program Files\Git\usr\bin" >> "$GITHUB_PATH"
+
+      - name: Install Lit and FileCheck
+        run: |
+          python -m pip install --no-warn-script-location lit filecheck
+
+      - name: Download Windows build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-build-artifact
+          path: build/
+
+      - name: Run LIT Regression Suite (Windows)
+        shell: bash
+        run: |
+          lit -v tests/regression_tests

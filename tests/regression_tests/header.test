@@ -1,0 +1,8 @@
+; RUN: %myobjdump %S/../Inputs/advanced_test.elf %data/riscv_decoder.json %data/riscv_pseudos.json | FileCheck %s
+;
+; Verify the header and section banner are printed correctly.
+; Uses CHECK-NEXT to ensure the empty line and section header follow immediately.
+
+; CHECK: advanced_test.elf:     file format elf64-littleriscv
+; CHECK-EMPTY:
+; CHECK-NEXT: Disassembly of section .text:

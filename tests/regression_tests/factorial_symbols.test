@@ -1,0 +1,21 @@
+; RUN: %myobjdump %S/../Inputs/factorial.elf %data/riscv_decoder.json %data/riscv_pseudos.json | FileCheck %s
+;
+; ELF64 with symbols, loops, compressed instructions, and pseudo-aliases.
+; Tests symbol resolution, compressed branch targets, and pseudo formatting.
+
+; CHECK: factorial.elf:     file format elf64-littleriscv
+; CHECK: Disassembly of section .text:
+
+; CHECK-LABEL: <_start>:
+; CHECK: li{{.*}}t0,5
+; CHECK: li{{.*}}t1,1
+
+; CHECK-LABEL: <factorial_loop>:
+; CHECK: beqz{{.*}}t0,80000010 <factorial_done>
+; CHECK: mul{{.*}}t1,t1,t0
+; CHECK: addi{{.*}}t0,t0,-1
+; CHECK: j{{.*}}80000004 <factorial_loop>
+
+; CHECK-LABEL: <factorial_done>:
+; CHECK: li{{.*}}a0,24
+; CHECK: ebreak

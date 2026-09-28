@@ -1,0 +1,11 @@
+; RUN: %myobjdump %S/../Inputs/advanced_test.elf %data/riscv_decoder.json %data/riscv_pseudos.json | FileCheck %s
+;
+; Verify pseudo-instructions are displayed correctly.
+; Expanded from the original 5 to cover the real aliases that had bugs.
+
+; Basic pseudo-instructions
+; CHECK: nop
+; CHECK: not     a0,a1
+; CHECK: neg     a2,a3
+; CHECK: sext.w  a6,a7
+; CHECK: seqz    t0,t1

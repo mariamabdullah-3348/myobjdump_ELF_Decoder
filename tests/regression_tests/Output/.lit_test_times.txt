@@ -1,0 +1,8 @@
+4.866273e-01 compressed_branches.test
+4.940889e-01 compressed_memory.test
+5.103929e-01 header.test
+4.874885e-01 pseudo_instructions.test
+5.153403e-01 rv64_w_instructions.test
+5.040102e-01 elf32_array.test
+5.051508e-01 elf32_rv32.test
+4.946313e-01 factorial_symbols.test

@@ -1,0 +1,15 @@
+; RUN: %myobjdump %S/../Inputs/advanced_test.elf %data/riscv_decoder.json %data/riscv_pseudos.json | FileCheck %s
+;
+; Verify that standard 32-bit RV64 instructions decode correctly.
+
+; CHECK: addw    t0,a0,a1
+; CHECK: subw    t1,a2,a3
+; CHECK: slliw   t2,a4,0xf
+; CHECK: srliw   t3,a5,0xa
+; CHECK: sraiw   t4,a6,0x14
+; CHECK: sllw    t5,a7,t0
+; CHECK: srlw    s0,s1,t1
+; CHECK: sraw    s2,s3,t2
+; CHECK: mulw    s4,s5,t3
+; CHECK: divuw   s5,s6,t4
+; CHECK: remw    s6,s7,t5

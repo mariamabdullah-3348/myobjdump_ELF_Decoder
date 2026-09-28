@@ -1,0 +1,9 @@
+; RUN: %myobjdump %S/../Inputs/advanced_test.elf %data/riscv_decoder.json %data/riscv_pseudos.json | FileCheck %s
+;
+; Verify compressed memory instructions format with imm(rs) syntax.
+
+; CHECK: addiw   a0,a0,15
+; CHECK: slli    a1,a1,0x20
+; CHECK: ld      a2,8(a3)
+; CHECK: sd      a2,8(a3)
+; CHECK: ebreak

@@ -1,0 +1,20 @@
+; RUN: %myobjdump %S/../Inputs/rv32_test.elf %data/riscv_decoder.json %data/riscv_pseudos.json | FileCheck %s
+;
+; ELF32 RV32 regression: tests compressed+32-bit mixed stream on ELF32,
+; including CSR instructions and various addressing modes.
+
+; CHECK: rv32_test.elf:     file format elf32-littleriscv
+; CHECK: Disassembly of section .text:
+
+; CHECK-LABEL: <_start>:
+; CHECK-NEXT:    00010074:
+; CHECK:      lw	t0,2044(sp)
+; CHECK:      sw	t0,2044(sp)
+; CHECK:      lb	t1,-2048(a0)
+; CHECK:      lhu	t2,2047(a1)
+; CHECK:      lui	a2,0x87654
+; CHECK:      auipc	a3,0x12345
+; CHECK:      addi	a4,a4,-2048
+; CHECK:      csrr	a0,mstatus
+; CHECK:      csrw	mepc,a1
+; CHECK-LABEL: <branch_target>:

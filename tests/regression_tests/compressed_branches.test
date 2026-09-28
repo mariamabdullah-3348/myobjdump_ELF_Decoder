@@ -1,0 +1,7 @@
+; RUN: %myobjdump %S/../Inputs/advanced_test.elf %data/riscv_decoder.json %data/riscv_pseudos.json | FileCheck %s
+;
+; Verify compressed branch and jump instructions with symbol resolution.
+
+; CHECK: beqz    a0,10108 <forward_target>
+; CHECK: bnez    a1,10108 <forward_target>
+; CHECK: j       10108 <forward_target>
