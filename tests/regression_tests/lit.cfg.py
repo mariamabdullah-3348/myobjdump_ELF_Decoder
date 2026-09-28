@@ -12,6 +12,7 @@ myobjdump_bin = os.environ.get('MYOBJDUMP_EXE')
 if not myobjdump_bin:
     project_root = os.path.normpath(os.path.join(config.test_source_root, '..', '..'))
     possible_paths = [
+        os.path.join(project_root, 'build', 'Release', 'myobjdump.exe'),
         os.path.join(project_root, 'build', 'myobjdump.exe'),
         os.path.join(project_root, 'build-win', 'Release', 'myobjdump.exe'),
         os.path.join(project_root, 'build', 'myobjdump'),
