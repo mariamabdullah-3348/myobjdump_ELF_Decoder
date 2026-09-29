@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Generate myobjdump decoder database from the official riscv/riscv-opcodes repo.
-
+"""
 from __future__ import annotations
 import argparse, csv, json, re, subprocess, sys, tempfile
 from pathlib import Path
