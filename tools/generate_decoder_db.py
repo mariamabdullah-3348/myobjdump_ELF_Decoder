@@ -2,23 +2,6 @@
 """
 Generate myobjdump decoder database from the official riscv/riscv-opcodes repo.
 
-Fixes applied vs the previous version:
-  FIX 1 - CSV parsing: read "name",msb,lsb rows correctly (never parse digits
-           from the operand name).
-  FIX 2 - Width from extension filename, NOT from highest fixed bit.
-  FIX 3 - B-immediate split (bimm12hi+bimm12lo -> bimm12).
-  FIX 4 - J-immediate split (jimm20 -> correct scrambled layout).
-  FIX 5 - S-immediate split (imm12hi+imm12lo -> imm12s).
-  FIX 6 - Full built-in operand fallback table covering base ISA + compressed.
-  FIX 7 - Validation gate: refuse to write output if beq/srai/c.ebreak wrong.
-
-Usage:
-    python tools/generate_decoder_db.py
-    python tools/generate_decoder_db.py --repo-dir path/to/riscv-opcodes
-    python tools/generate_decoder_db.py --output data/riscv_decoder.json
-    python tools/generate_decoder_db.py --include-unratified
-"""
-
 from __future__ import annotations
 import argparse, csv, json, re, subprocess, sys, tempfile
 from pathlib import Path
