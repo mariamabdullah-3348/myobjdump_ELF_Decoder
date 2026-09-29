@@ -11,6 +11,28 @@ A custom C++ RISC-V ELF disassembler. It reads ELF32 and ELF64 binaries, extract
 - **CSR name resolution** (`mstatus`, `mepc`, etc.)
 - **GNU objdump-compatible output** formatting
 
+## Architecture
+
+```text
+src/
+│
+├── ELF handling
+│   ├── elf.h / ELF-related definitions
+│   └── elf_reader (.h/.cpp)
+│
+├── RISC-V handling (src/riscv/)
+│   ├── instruction_fetcher (.h/.cpp)
+│   ├── opcode_database (.h/.cpp)
+│   ├── decoder (.h/.cpp)
+│   └── instruction (.h) / operand handling
+│
+├── Formatting & Symbols
+│   └── instruction_formatter (.h/.cpp)
+│
+└── Main Application Flow
+    └── main.cpp
+```
+
 ## Build
 
 ```powershell
